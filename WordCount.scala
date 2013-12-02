@@ -15,7 +15,7 @@ object SparkWordCount1 {
 
   def main(args : Array[String]) {
     val context = new SparkContext("local", "test")
-    val book = context.textFile("/Users/oliviermirandette/Downloads/pg135.txt")
+    val book = context.textFile(args(0))
     book.foreach(println)
   }
 }
@@ -25,7 +25,7 @@ object SparkWordCount2 {
    */
   def main(args : Array[String]) {
     val context = new SparkContext("local", "test")
-    val book = context.textFile("/Users/oliviermirandette/Downloads/pg135.txt")
+    val book = context.textFile(args(0))
     book.flatMap(line => line.split("[\\s]")).foreach(println)
   }
 }
@@ -35,38 +35,27 @@ object SparkWordCount3 {
    */
   def main(args : Array[String]) {
     val context = new SparkContext("local", "test")
-    val book = context.textFile("/Users/oliviermirandette/Downloads/pg135.txt")
+    val book = context.textFile(args(0))
     book.flatMap(line => line.split("[\\s]"))
       .filter(word => !word.isEmpty).foreach(println)
   }
 }
+
 object SparkWordCount4 {
-  /*
-    reading the file, generate words, trim each word, filter out "empty" word and print each word
-   */
-  def main(args : Array[String]) {
-    val context = new SparkContext("local", "test")
-    val book = context.textFile("/Users/oliviermirandette/Downloads/pg135.txt")
-    book.flatMap(line => line.split("[\\s]"))
-      .map(word => word.trim)
-      .filter(word => !word.isEmpty).foreach(println)
-  }
-}
-object SparkWordCount5 {
   /*
     reading the file, generate words, trim each word, put in lower case,
       replace special char, filter out "empty" word and print each word
    */
   def main(args : Array[String]) {
     val context = new SparkContext("local", "test")
-    val book = context.textFile("/Users/oliviermirandette/Downloads/pg135.txt")
+    val book = context.textFile(args(0))
     val regex = "[,.:;'\"\\?\\-!\\(\\)]".r
     book.flatMap(line => line.split("[\\s]"))
       .map(word => regex.replaceAllIn(word.trim.toLowerCase, ""))
       .filter(word => !word.isEmpty).foreach(println)
   }
 }
-object SparkWordCount6 {
+object SparkWordCount5 {
 
   def main(args : Array[String]) {
     /*
@@ -74,7 +63,7 @@ object SparkWordCount6 {
       replace special char, filter out "empty", count each word and print the word and the count
     */
     val context = new SparkContext("local", "test")
-    val book = context.textFile("/Users/oliviermirandette/Downloads/pg135.txt")
+    val book = context.textFile(args(0))
     val regex = "[,.:;'\"\\?\\-!\\(\\)]".r
     book.flatMap(line => line.split("[\\s]"))
       .map(word => regex.replaceAllIn(word.trim.toLowerCase, ""))
@@ -84,46 +73,26 @@ object SparkWordCount6 {
   }
 }
 
+object SparkWordCount6 {
+  /*
+    reading the file, generate words, trim each word, put in lower case,
+      replace special char, filter out "empty", count each word, sort by count ASC and print the word and the count
+  */
+  def main(args : Array[String]) {
+    val context = new SparkContext("local", "test")
+    val book = context.textFile(args(0))
+    val regex = "[,.:;'\"\\?\\-!\\(\\)]".r
+    book.flatMap(line => line.split("[\\s]"))
+      .map(word => regex.replaceAllIn(word.trim.toLowerCase, ""))
+      .filter(word => !word.isEmpty)
+      .map(word => (word, 1))
+      .reduceByKey(_ + _)
+      .map(tuple => (tuple._2, tuple._1))
+      .sortByKey(true).foreach(println)
+  }
+}
+
 object SparkWordCount7 {
-  /*
-    reading the file, generate words, trim each word, put in lower case,
-      replace special char, filter out "empty", count each word, sort by count ASC and print the word and the count
-  */
-  def main(args : Array[String]) {
-    val context = new SparkContext("local", "test")
-    val book = context.textFile("/Users/oliviermirandette/Downloads/pg135.txt")
-    val regex = "[,.:;'\"\\?\\-!\\(\\)]".r
-    book.flatMap(line => line.split("[\\s]"))
-      .map(word => regex.replaceAllIn(word.trim.toLowerCase, ""))
-      .filter(word => !word.isEmpty)
-      .map(word => (word, 1))
-      .reduceByKey(_ + _)
-      .map(tuple => (tuple._2, tuple._1))
-      .sortByKey(true).foreach(println)
-  }
-}
-
-object SparkWordCount8 {
-  /*
-    reading the file, generate words, trim each word, put in lower case,
-      replace special char, filter out "empty", count each word, sort by count ASC and print the word and the count
-  */
-  def main(args : Array[String]) {
-    val context = new SparkContext("local", "test")
-    val book = context.textFile("/Users/oliviermirandette/Downloads/pg135.txt")
-    val regex = "[,.:;'\"\\?\\-!\\(\\)]".r
-    book.flatMap(line => line.split("[\\s]"))
-      .map(word => regex.replaceAllIn(word.trim.toLowerCase, ""))
-      .filter(word => !word.isEmpty)
-      .map(word => (word, 1))
-      .reduceByKey(_ + _)
-      .map(tuple => (tuple._2, tuple._1))
-      .sortByKey(true).foreach(println)
-  }
-}
-
-
-object SparkWordCount9 {
   /*
     reading the file, generate words, replace special char, filter out "empty", count each word, sort by count ASC
      store the result in memory
@@ -133,7 +102,7 @@ object SparkWordCount9 {
   */
   def main(args : Array[String]) {
     val context = new SparkContext("local", "test")
-    val book = context.textFile("/Users/oliviermirandette/Downloads/pg135.txt")
+    val book = context.textFile(args(0))
     val regex = "[,.:;'\"\\?\\-!\\(\\)]".r
 
     val result = book
